@@ -22,6 +22,9 @@ body
 /* Стандартные стили для слайдера */
 .slider-container
 {
+  --slide-transition: 1s;
+  --auto-scroll-time: 5s;
+
   position: relative;
 
   display: flex;
@@ -84,7 +87,7 @@ body
   двигать слайдер по оси X */
   touch-action: pan-y;
 
-  transition: 1s;
+  transition: var(--slide-transition);
 }
 
 .slider-container .slider-line__item .line-item__block
@@ -118,6 +121,8 @@ body
   cursor: pointer;
 
   background-color: burlywood;
+
+  transition: calc(var(--slide-transition) / 2);
 }
 
 .slider-container .pagination-block__filler
@@ -125,8 +130,9 @@ body
   height: 100%;
   width: 0;
 
-  transition: 1s;
   background-color: brown;
+
+  transition: var(--slide-transition);
 }
 
 /* --- Activation styles --- */
@@ -135,9 +141,14 @@ body
   width: 100% !important;
 }
 
+.activ-pagination-static
+{
+  background-color: brown !important;
+}
+
 .activ-pagination-animation
 {
-  animation: timerLine 5s linear;
+  animation: timerLine var(--auto-scroll-time) linear;
 }
 
 .pause-pagination-animation

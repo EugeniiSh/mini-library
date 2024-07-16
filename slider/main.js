@@ -1,12 +1,25 @@
 class Slider
 {
-  constructor({slider, visibleNum = 1, autoScroll = true, paginations = true, arrows = true})
+  constructor(
+    {
+      slider = console.log(new Error('Slider object not specified!')), 
+      visibleNum = 1, 
+      autoScroll = true, 
+      paginations = true, 
+      arrows = true,
+      slideTransition = 1,
+      autoScrollTime = 5,
+      paginationStatic = false,
+    })
   {
     this.slider = slider; //Объект slider-container
     this.visibleNum = visibleNum; //Количество одновременно видимых слайдов
     this.autoScroll = autoScroll; //Вкл-Откл автопролистывания слайдера
     this.paginations = paginations; //Вкл-Откл пагинанацию для слайдера
     this.arrows = arrows; //Вкл-Откл стрелок влево-вправо
+    this.slideTransition = slideTransition; //Время прокрутки слайдов, в секундах
+    this.autoScrollTime = autoScrollTime; //Время переключения между слайдами в авто режиме, в секундах
+    this.paginationStatic = paginationStatic, //Вкл-Откл статичную пагинанацию для слайдера
     this.setup(this.slider); //Обновление текущих значений слайдера
     this.attachEvents();
   }
@@ -38,11 +51,20 @@ class Slider
       this.sliderPaginationBlock.classList.add('hiden-block');
     }
 
-    if(!this.arrows)
-    {
+    if(!this.arrows)                         //Скрытие стрелок навигации при включённой настройке,
+    {                                        //но автопереключение будет продолжаться.
       this.slider.querySelector('.slider__arrow-left').classList.add('hiden-block');
       this.slider.querySelector('.slider__arrow-right').classList.add('hiden-block');
       this.slider.style.justifyContent = 'center';
+    }
+
+    // Установка времени прокрутки слайдера, и смены слайдов в авто режиме
+    // Если время прокрутки больше чем время смены, то время прокрутки = время смены.
+    this.slider.style.setProperty('--slide-transition', this.slideTransition + 's');
+    this.slider.style.setProperty('--auto-scroll-time', this.autoScrollTime + 's');
+    if(this.slideTransition > this.autoScrollTime) 
+    {
+      this.slider.style.setProperty('--slide-transition', this.autoScrollTime + 's');
     }
   }
 
@@ -131,9 +153,20 @@ class Slider
     {
       this.paginationBlocks.forEach((item) =>                  //Берём все блоки пагинации;
       {                                                        //Удаляем стиль активации для каждого;
-        item.firstChild.classList.remove('activ-pagination');  //Для пагинации актуального слайда
-      })                                                       //добавляем стиль активации;   
-      this.paginationBlocks[this.pagIndex].firstChild.classList.add('activ-pagination');
+        item.firstChild.classList.remove('activ-pagination');  
+        item.classList.remove('activ-pagination-static');      
+      })                                                        
+      
+      //Для пагинации актуального слайда добавляем стиль активации
+      if(this.paginationStatic) //статичная пагинация
+      {
+        this.paginationBlocks[this.pagIndex].classList.add('activ-pagination-static');
+      }
+      else //анимированная пагинация
+      {
+        this.paginationBlocks[this.pagIndex].firstChild.classList.add('activ-pagination');
+      }
+      
     }
   }
 
@@ -203,10 +236,15 @@ const sliderSetup =
   autoScroll: false,
   paginations: true,
   arrows: true,
+  slideTransition: 3,
+  autoScrollTime: 7,
+  paginationStatic: true,
 }
 
 const sliderObj = new Slider(sliderSetup);
 // console.log(sliderObj);
+// const asd = document.querySelector('.slider-container');
+// asd.style.setProperty('--slide-transition', 1 + 's');
 
 
 // Разметка:
