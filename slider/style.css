@@ -25,6 +25,13 @@ body
   --slide-transition: 1s;
   --auto-scroll-time: 5s;
 
+  --slider-block-wrapper: 300px;
+
+  --slider-line-gap: 20px;
+
+  --line-item-block-width: 300px;
+  --line-item-block-height: 150px;
+
   position: relative;
 
   display: flex;
@@ -66,8 +73,10 @@ body
 
 .slider-container .slider-block__wrapper
 {
-  width: 300px;
-  overflow: hidden;
+  width: var(--slider-block-wrapper);
+  height: var(--line-item-block-height);
+
+  /* overflow: hidden; */
 
   background-color: blue;
 }
@@ -75,7 +84,7 @@ body
 .slider-container .slider-line
 {
   display: flex;
-  gap: 20px;
+  gap: var(--slider-line-gap);
 
   /* Чтобы во время перетаскивания 
   слайда ничего не выделить 
@@ -90,16 +99,26 @@ body
   transition: var(--slide-transition);
 }
 
+.slider-container .slider-line__item
+{
+  position: relative;
+  /* position: absolute; */
+
+  transition: var(--slide-transition);
+}
+
 .slider-container .slider-line__item .line-item__block
 {
-  width: 140px;
-  height: 150px;
+  width: var(--line-item-block-width);
+  height: var(--line-item-block-height);
 
   display: flex;
   justify-content: center;
   align-items: center;
 
   font-size: 50px;
+
+  border: 1px solid red;
 
   background-color: aquamarine;
 }
@@ -131,6 +150,7 @@ body
   width: 0;
 
   background-color: brown;
+  /* background-color: transparent; */
 
   transition: var(--slide-transition);
 }
@@ -164,8 +184,38 @@ body
   pointer-events: none;
 }
 
+.activ-position-absolute
+{
+  position: absolute !important;
+}
+
+.active-opacity-0
+{
+  opacity: 0;
+}
+
+.active-collapse-animation
+{
+  animation: collapse-box var(--slide-transition) ease-in reverse;
+}
+
+.active-revcollapse-animation
+{
+  animation: collapse-box var(--slide-transition) ease-out;
+}
+
+.active-translateX-animation
+{
+  animation: collapse-gap var(--slide-transition) ease-out;
+}
+
+.active-revtranslateX-animation
+{
+  animation: collapse-gap var(--slide-transition) ease-in reverse;
+}
+
 /* --- Animation --- */
-/* Двигает заполняюшюю полоску панинации */
+/* Двигает заполняюшюю полоску пангинации */
 @keyframes timerLine
 {
   from
@@ -175,6 +225,34 @@ body
   to
   {
     width: 100%;
+  }
+}
+
+@keyframes collapse-box
+{
+  from
+  {
+    width: 0px;
+    /* width: 0%; */
+    /* transform: scaleX(0); */
+  }
+  to
+  {
+    width: var(--line-item-block-width);
+    /* width: 100%; */
+    /* transform: scaleX(1); */
+  }
+}
+
+@keyframes collapse-gap
+{
+  from
+  {
+    transform: translateX(0px);
+  }
+  to
+  {
+    transform: translateX(calc(var(--slider-line-gap) * -1));
   }
 }
 
@@ -195,15 +273,22 @@ body
 
 @media (max-width: 580px)
 {
+  .slider-container
+  {
+    --line-item-block-width: 200px;
+  }
+
   .slider-container .slider-block__wrapper
   {
     width: 200px;
   }
 
-  .slider-container .slider-line__item .line-item__block
+  /* .slider-container .slider-line__item .line-item__block
   {
+    --line-item-block-width: 200px;
+    width: var(--line-item-block-width);
     width: 90px;
-  }
+  } */
 
   .slider-container .pagination-block
   {

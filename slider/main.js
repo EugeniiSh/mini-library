@@ -44,7 +44,6 @@ class Slider
     this.swipeThreshold = this.sliderWrapperWidth / 3; //Длинна касания достаточная для свайпа
 
     this.createPaginations();
-    this.goToSlide(this.pagIndex);
 
     if(!this.paginations)                    //Скрытие блока пагинации при включённой настройке,
     {                                        //но автопереключение будет продолжаться.
@@ -66,6 +65,28 @@ class Slider
     {
       this.slider.style.setProperty('--slide-transition', this.autoScrollTime + 's');
     }
+
+    // ============================setup INFINITY slider========================================
+
+    const sliderItems = this.slider.querySelectorAll('.slider-line__item');
+    this.sliderItemsArr = [...sliderItems];
+  
+    this.sliderLine.prepend(sliderItems[sliderItems.length - 1]);
+    this.position += this.scrollLength;
+    this.sliderLine.style.transform = `translateX(${-this.position}px)`;
+
+    this.slideEnd = true;
+
+    // =========================setup INFINITY slider: throught opacity==========================
+
+    // this.sliderItems = this.slider.querySelectorAll('.slider-line__item');
+
+    // this.sliderItems.forEach(item => item.classList.add('active-opacity-0', 'activ-position-absolute'));
+    // this.sliderItems[this.pagIndex].classList.remove('active-opacity-0');
+
+    // ==================================================================================
+
+    this.goToSlide(this.pagIndex);
   }
 
   createPaginations() //Создание блоков пагинации
@@ -99,57 +120,237 @@ class Slider
 
   goToSlide(num) 
   {
-    this.position = this.scrollLength * num;
-    this.pagIndex = num;
-    this.sliderLine.style.transform = `translateX(${-this.position}px)`;
-    this.activatePagination();
+    // =============defaul slider: through sliderLine movement=============
+
+    // this.position = this.scrollLength * num;
+    // this.pagIndex = num;
+    // this.sliderLine.style.transform = `translateX(${-this.position}px)`;
+
+    // ============infinity slider: through sliderLine movement=============
+
+    // if(this.slideEnd)
+    // {
+    //   this.slideEnd = false;
+
+    //   this.pagIndex = num;
+
+    //   this.clickedSlideIndex = [...this.sliderLine.children].findIndex(item => item === this.sliderItemsArr[num]);
+
+    //   this.position = this.scrollLength * this.clickedSlideIndex;
+    //   this.sliderLine.style.transform = `translateX(${-this.position}px)`;
+    // }
+
+    // ===============infinity slider: through insert slides===============
+
+    if(this.slideEnd)
+    {
+      this.goToInfiSlide = true;
+
+      const currentPagIndex = this.pagIndex;
+      this.pagIndex = num;
+
+      console.log('this.sliderLine.children = ', this.sliderLine.children);
+
+      // this.clickedSlideIndex = [...this.sliderLine.children].findIndex(item => item === this.sliderItemsArr[num]);
+
+      // console.log('currentPagIndex = ', currentPagIndex);
+      // console.log('num = ', num);
+      // console.log('this.pagIndex = ', this.pagIndex);
+      // console.log('this.clickedSlideIndex = ', this.clickedSlideIndex);
+      // console.log('this.sliderItemsArr = ', this.sliderItemsArr);
+      let tempNode = null;
+
+      switch(true)
+      {
+        case ((currentPagIndex + 1) % this.paginationBlocks.length) === num:
+          this.nextSlide();
+          break;
+        case ((num + 1) % this.paginationBlocks.length) === currentPagIndex:
+          this.prevSlide();
+          break;
+        case num > currentPagIndex:
+          tempNode = this.sliderLine.children[2];
+          this.sliderLine.children[2].replaceWith(this.sliderItemsArr[num]);
+          this.sliderLine.append(tempNode);
+          this.nextSlide();
+          break;
+        case num < currentPagIndex:
+          tempNode = this.sliderLine.children[0];
+          this.sliderLine.children[0].replaceWith(this.sliderItemsArr[num]);
+          this.sliderLine.append(tempNode);
+          this.prevSlide();
+          break;
+      }
+
+
+      this.activatePagination();
+    }
+
+    // =================infinity slider: throught opacity==================
+
+    // this.pagIndex = num;
+
+    // this.sliderItems.forEach(item => item.classList.add('active-opacity-0'));
+    // this.sliderItems[this.pagIndex].classList.remove('active-opacity-0');
+
+    // this.activatePagination();
+
+    // =====================================================================
+
+    // this.activatePagination();
   }
 
   nextSlide() 
   {
-    if(this.position < ((this.lineItemsNumber - this.visibleNum) * this.scrollLength))
+    // ==================defaul slider: through sliderLine movement================
+
+    // if(this.position < ((this.lineItemsNumber - this.visibleNum) * this.scrollLength))
+    // {
+    //   this.position += this.scrollLength;
+    //   this.pagIndex++;
+    // }
+    // else
+    // {
+    //   this.position = 0;
+    //   this.pagIndex = 0;
+    // }
+
+    // this.sliderLine.style.transform = `translateX(${-this.position}px)`;
+    // this.activatePagination();
+
+    // =================infinity slider: through collapse-animation=================
+
+    if(this.slideEnd)
     {
-      this.position += this.scrollLength;
-      this.pagIndex++;
-    }
-    else
-    {
-      this.position = 0;
-      this.pagIndex = 0;
+      this.slideEnd = false;
+
+      this.sliderLine.firstElementChild.classList.add('active-collapse-animation');
+
+      for(let i = 1; i <= this.visibleNum + 1; i++)
+      {
+        this.sliderLine.children[i].classList.add('active-translateX-animation');
+      }
+
+      this.pagIndex = this.sliderItemsArr.findIndex(item => item === this.sliderLine.children[2]);
+      this.activatePagination();
     }
 
-    this.sliderLine.style.transform = `translateX(${-this.position}px)`;
-    this.activatePagination();
+    // console.log([...this.sliderLine.children])
+
+    // ======================infinity slider: through opacity=======================
+
+    // if(this.pagIndex < this.lineItemsNumber - 1)
+    // {
+    //   this.pagIndex++;
+    // }
+    // else
+    // {
+    //   this.pagIndex = 0;
+    // }
+
+    // this.sliderItems.forEach(item => item.classList.add('active-opacity-0'));
+    // this.sliderItems[this.pagIndex].classList.remove('active-opacity-0');
+
+    // this.activatePagination();
+
+    // =============================================================================
   }
 
   prevSlide() 
   {
-    if(this.position > 0)
-    {
-      this.position -= this.scrollLength;
-      this.pagIndex--;
-    }
-    else
-    {
-      this.position = (this.lineItemsNumber - this.visibleNum) * this.scrollLength;
-      this.pagIndex = this.lineItemsNumber - this.visibleNum;
-    }
+    // ==================defaul slider: through sliderLine movement================
 
-    this.sliderLine.style.transform = `translateX(${-this.position}px)`;
-    this.activatePagination();
+    // if(this.position > 0)
+    // {
+    //   this.position -= this.scrollLength;
+    //   this.pagIndex--;
+    // }
+    // else
+    // {
+    //   this.position = (this.lineItemsNumber - this.visibleNum) * this.scrollLength;
+    //   this.pagIndex = this.lineItemsNumber - this.visibleNum;
+    // }
+
+    // this.sliderLine.style.transform = `translateX(${-this.position}px)`;
+    // this.activatePagination();
+
+    // =================infinity slider: through collapse-animation=================
+
+    if(this.slideEnd)
+    {
+      this.slideEnd = false;
+
+      for(let i = 0; i <= this.visibleNum; i++)
+      {
+        this.sliderLine.children[i].classList.add('active-revtranslateX-animation');
+      }
+
+      this.sliderLine.prepend(this.sliderLine.lastElementChild);
+      this.sliderLine.firstElementChild.classList.add('active-revcollapse-animation');
+
+      this.pagIndex = this.sliderItemsArr.findIndex(item => item === this.sliderLine.children[1]);
+      this.activatePagination();
+    }
+    
+    // ======================infinity slider: through opacity=======================
+
+    // if(this.pagIndex > 0)
+    // {
+    //   this.pagIndex--;
+    // }
+    // else
+    // {
+    //   this.pagIndex = this.lineItemsNumber - 1;
+    // }
+
+    // this.sliderItems.forEach(item => item.classList.add('active-opacity-0'));
+    // this.sliderItems[this.pagIndex].classList.remove('active-opacity-0');
+
+    // this.activatePagination();
+
+    // =============================================================================
+  }
+
+  updateSlideOrder()
+  {
+    const sliderItems = this.slider.querySelectorAll('.slider-line__item');
+
+    sliderItems.forEach((item, index, arr) =>
+    {
+      const updateIndex = (index + this.pagIndex + (arr.length - 1)) % arr.length;
+
+      console.log('items = ', item);
+      console.log('this.pagIndex = ', this.pagIndex);
+      console.log('updateIndex = ', updateIndex);
+
+      
+
+      if(item !== this.sliderItemsArr[updateIndex])
+      {
+        item.replaceWith(this.sliderItemsArr[updateIndex]);
+      }
+    });
+
+    this.goToInfiSlide = false;
   }
 
   activatePagination() //Активация пагинации
   {
-    if(this.autoScroll) // анимированная авто пагинация
+    if(this.autoScroll) // При активном авто скроле слайдов
     {
       this.paginationBlocks.forEach((item) =>                            //Берём все блоки пагинации;
       {                                                                  //Удаляем стиль анимации для каждого;
         item.firstChild.classList.remove('activ-pagination-animation');  //Для пагинации актуального слайда
-      })                                                                 //добавляем стиль анимации;   
+        item.classList.remove('activ-pagination-static');                //добавляем стиль анимации;
+      })                                                                    
       this.paginationBlocks[this.pagIndex].firstChild.classList.add('activ-pagination-animation');
+
+      if(this.paginationStatic) 
+      {
+        this.paginationBlocks[this.pagIndex].classList.add('activ-pagination-static');
+      }
     }
-    else // не анимированная статичная пагинация
+    else // Без авто скрола слайдов
     {
       this.paginationBlocks.forEach((item) =>                  //Берём все блоки пагинации;
       {                                                        //Удаляем стиль активации для каждого;
@@ -204,6 +405,67 @@ class Slider
       this.posX2 = event.clientX; //Координаты отжатия кнопки по оси Х
       this.swipeAction();
     });
+
+    // ==============================INFINITY slider events==============================
+
+    this.sliderLine.addEventListener('animationend', (event) => 
+    {
+      // clearing selectors after PREV slide
+      if(event.target === this.sliderLine.firstElementChild
+      && this.sliderLine.firstElementChild.classList.contains('active-revcollapse-animation'))
+      {
+        this.sliderLine.firstElementChild.classList.remove('active-revcollapse-animation');
+
+        for(let i = 1; i <= this.visibleNum + 1; i++)
+        {
+          this.sliderLine.children[i].classList.remove('active-revtranslateX-animation');
+        }
+        
+        if(this.goToInfiSlide)
+        {
+          this.updateSlideOrder();
+        }
+      }
+
+      // clearing selectors after NEXT slide
+      if(event.target === this.sliderLine.firstElementChild
+      && this.sliderLine.firstElementChild.classList.contains('active-collapse-animation'))
+      {
+        for(let i = 1; i <= this.visibleNum + 1; i++)
+        {
+          this.sliderLine.children[i].classList.remove('active-translateX-animation');
+        }
+
+        this.sliderLine.firstElementChild.classList.remove('active-collapse-animation');
+        this.sliderLine.append(this.sliderLine.firstElementChild);
+
+        if(this.goToInfiSlide)
+        {
+          this.updateSlideOrder();
+        }
+      }
+
+      this.slideEnd = true;
+    });
+
+    // ============event for goToSlide: infinity slider: through sliderLine movement=============
+
+    // this.sliderLine.addEventListener('transitionend', (event) => 
+    // {
+    //   console.log('tut')
+
+    //   if(this.clickedSlideIndex === 0)
+    //   {
+    //     this.sliderLine.prepend(this.sliderLine.lastElementChild);
+    //     this.position += this.scrollLength;
+    //     this.sliderLine.style.transform = `translateX(${-this.position}px)`;
+    //   }
+
+    //   this.clickedSlideIndex = null;
+    //   this.slideEnd = true;
+    // });
+
+    // ==================================================================================
   }
 
   swipeAction()
@@ -232,12 +494,12 @@ const slider = document.querySelector('.slider-container');
 const sliderSetup = 
 {
   slider: slider,
-  visibleNum: 2,
+  visibleNum: 1,
   autoScroll: false,
   paginations: true,
   arrows: true,
-  slideTransition: 3,
-  autoScrollTime: 7,
+  slideTransition: 4,
+  autoScrollTime: 5,
   paginationStatic: true,
 }
 
