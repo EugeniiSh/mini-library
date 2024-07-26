@@ -522,11 +522,11 @@ const sliderSetup =
   autoScroll: true,
   paginations: true,
   arrows: true,
-  slideTransition: 5,
-  autoScrollTime: 5,
-  paginationStatic: true,
+  slideTransition: 1,
+  autoScrollTime: 3,
+  paginationStatic: false,
   infinity: true,
-  opacity: true,
+  opacity: false,
 }
 
 const sliderObj = new Slider(sliderSetup);
