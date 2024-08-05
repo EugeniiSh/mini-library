@@ -113,7 +113,7 @@ class Slider
       this.sliderPaginationBlock.append(pagNode.cloneNode(true));
     }
 
-    this.paginationBlocks = slider.querySelectorAll('.pagination-block'); //Все блоки пагинации
+    this.paginationBlocks = this.slider.querySelectorAll('.pagination-block'); //Все блоки пагинации
 
     this.paginationBlocks.forEach((item, index) => 
     {                                        
